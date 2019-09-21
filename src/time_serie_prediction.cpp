@@ -13,8 +13,6 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
   std::cout << time_serie_detector << std::endl;
 
-  //  torch::nn::RNNImpl impl;
-
   auto x = torch::ones(1).toBackend(c10::Backend::CUDA);
   auto a = torch::ones(10).toBackend(c10::Backend::CUDA);
   std::cout << "x = " << x << std::endl;
