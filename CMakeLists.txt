@@ -20,3 +20,8 @@ add_executable(function_approx
 target_include_directories(function_approx PRIVATE
   include)
 target_link_libraries(function_approx ${TORCH_LIBRARIES})
+add_executable(time_serie_prediction
+  src/time_serie_prediction.cpp)
+target_include_directories(time_serie_prediction PRIVATE
+  include)
+target_link_libraries(time_serie_prediction ${TORCH_LIBRARIES})
