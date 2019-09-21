@@ -16,6 +16,15 @@ if(CLANG_TIDY_PROG AND NOT TARGET tidy)
   add_custom_target(check-tidy)
 endif()
 
+find_program(PARALLEL_PROG parallel DOC "'parallel' executable")
+if(PARALLEL_PROG)
+  set(PARALLEL_DELIMITER ":::")
+else()
+  message(WARNING "parallel is not installeld. To enable parallelization of clang-tidy, try with 'sudo apt install parallel'.")
+  set(PARALLEL_PROG "")
+  set(PARALLEL_DELIMITER "")
+endif()
+
 function(add_format_target _target)
   if(NOT CLANG_FORMAT_PROG)
     return()
@@ -46,7 +55,7 @@ function(add_tidy_target _target)
   cmake_parse_arguments(ARG "" "" "FILES;DEPENDS" ${ARGN})
 
   add_custom_target(tidy-${_target}
-    COMMAND ${CLANG_TIDY_PROG} -fix -p=${CMAKE_BINARY_DIR} ${ARG_FILES}
+    COMMAND ${PARALLEL_PROG} ${CLANG_TIDY_PROG} -fix -p=${CMAKE_BINARY_DIR} ${PARALLEL_DELIMITER} ${ARG_FILES}
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..
     DEPENDS ${ARG_DEPENDS}
     COMMENT "Running clang-tidy for ${_target}"
@@ -55,7 +64,7 @@ function(add_tidy_target _target)
   add_dependencies(tidy tidy-${_target})
 
   add_custom_target(check-tidy-${_target}
-  COMMAND scripts/fail-on-output.sh ${CLANG_TIDY_PROG} -p=${CMAKE_BINARY_DIR} ${ARG_FILES}
+  COMMAND ${PARALLEL_PROG} ${CLANG_TIDY_PROG} -p=${CMAKE_BINARY_DIR} ${PARALLEL_DELIMITER} ${ARG_FILES} | grep . && exit 1 || exit 0
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..
     DEPENDS ${ARG_DEPENDS}
     COMMENT "Running clang-tidy for ${_target}"
