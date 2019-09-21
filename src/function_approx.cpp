@@ -1,10 +1,10 @@
+#include <torch/torch.h>
 #include <algorithm>
 #include <random>
-#include <torch/torch.h>
 
-std::pair<std::vector<double>, std::vector<double>>
-getTrainingData(double i_max = 1000000, double x_min = -M_PI,
-                double x_max = M_PI) {
+std::pair<std::vector<double>, std::vector<double>> getTrainingData(double i_max = 1000000,
+                                                                    double x_min = -M_PI,
+                                                                    double x_max = M_PI) {
   std::vector<double> x(i_max);
   std::vector<double> y(i_max);
 
@@ -19,16 +19,15 @@ getTrainingData(double i_max = 1000000, double x_min = -M_PI,
 };
 
 class OneDimMappingDataset : public torch::data::Dataset<OneDimMappingDataset> {
-private:
+ private:
   std::vector<double> states_, labels_;
 
-public:
-  explicit OneDimMappingDataset(const std::vector<double> &states,
-                                const std::vector<double> &labels)
+ public:
+  explicit OneDimMappingDataset(const std::vector<double>& states,
+                                const std::vector<double>& labels)
       : states_(states), labels_(labels) {
     if (states.size() != labels.size()) {
-      throw std::invalid_argument(
-          "states and labels must have the same length.");
+      throw std::invalid_argument("states and labels must have the same length.");
     }
   };
   torch::data::Example<> get(size_t index) override {
@@ -42,8 +41,7 @@ public:
 
 using namespace torch;
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[]) {
   const size_t epoch_size = 100;
   const size_t batch_size = 10000;
   const int64_t kLogInterval = 10;
@@ -65,30 +63,24 @@ int main(int argc, char *argv[]) {
   std::cout << "train_y size: " << train_y.size() << std::endl;
 
   // Generate a dataset
-  auto data_set = OneDimMappingDataset(train_x, train_y)
-                      .map(torch::data::transforms::Stack<>());
+  auto data_set = OneDimMappingDataset(train_x, train_y).map(torch::data::transforms::Stack<>());
 
   const size_t data_size = data_set.size().value();
-  const int64_t batches_per_epoch =
-      std::ceil(data_size / static_cast<double>(batch_size));
+  const int64_t batches_per_epoch = std::ceil(data_size / static_cast<double>(batch_size));
   std::cout << "data size: " << data_size << std::endl;
 
   // Generate a data loader.
-  auto data_loader =
-      torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
-          std::move(data_set), batch_size);
+  auto data_loader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
+      std::move(data_set), batch_size);
 
   // Define network
   nn::Sequential func_approximator(
-      nn::Linear(nn::LinearOptions(1, 100).with_bias(true)),
-      nn::Functional(torch::leaky_relu, 0.2),
-      nn::Linear(nn::LinearOptions(100, 1).with_bias(true)),
-      nn::Functional(torch::tanh));
+      nn::Linear(nn::LinearOptions(1, 100).with_bias(true)), nn::Functional(torch::leaky_relu, 0.2),
+      nn::Linear(nn::LinearOptions(100, 1).with_bias(true)), nn::Functional(torch::tanh));
   func_approximator->to(device);
 
   // Define Optimizer
-  optim::Adam optimizer(func_approximator->parameters(),
-                        optim::AdamOptions(2e-4).beta1(0.5));
+  optim::Adam optimizer(func_approximator->parameters(), optim::AdamOptions(2e-4).beta1(0.5));
 
   const bool kRestoreFromCheckpoint = false;
   if (kRestoreFromCheckpoint) {
@@ -98,7 +90,7 @@ int main(int argc, char *argv[]) {
   size_t epoch_idx = 0;
   while (epoch_idx < epoch_size) {
     size_t batch_index = 0;
-    for (torch::data::Example<> &batch : *data_loader) {
+    for (torch::data::Example<>& batch : *data_loader) {
       // Train discriminator with real images.
       func_approximator->zero_grad();
       auto data = batch.data.to(device);
@@ -117,9 +109,8 @@ int main(int argc, char *argv[]) {
       optimizer.step();
 
       if (batch_index % kLogInterval == 0) {
-        std::printf("\r[%2ld/%2ld][%3ld/%3ld] loss: %.4f \n", epoch_idx,
-                    epoch_size, batch_index, batches_per_epoch,
-                    d_loss_real.item<double>());
+        std::printf("\r[%2ld/%2ld][%3ld/%3ld] loss: %.4f \n", epoch_idx, epoch_size, batch_index,
+                    batches_per_epoch, d_loss_real.item<double>());
         /*
         auto test_x = torch::randn(1) * M_PI;
         auto test_y =
