@@ -39,11 +39,9 @@ class OneDimMappingDataset : public torch::data::Dataset<OneDimMappingDataset> {
   torch::optional<size_t> size() const override { return states_.size(); }
 };
 
-using namespace torch;
-
-int main(int argc, char* argv[]) {
-  const size_t epoch_size = 100;
-  const size_t batch_size = 10000;
+int main(int /*argc*/, char* /*argv*/[]) {
+  const size_t kEpochSize = 100;
+  const size_t kBatchSize = 10000;
   const int64_t kLogInterval = 10;
   const int64_t kCheckpointEvery = 10000;
 
@@ -65,22 +63,25 @@ int main(int argc, char* argv[]) {
   // Generate a dataset
   auto data_set = OneDimMappingDataset(train_x, train_y).map(torch::data::transforms::Stack<>());
 
-  const size_t data_size = data_set.size().value();
-  const int64_t batches_per_epoch = std::ceil(data_size / static_cast<double>(batch_size));
-  std::cout << "data size: " << data_size << std::endl;
+  const size_t kDataSize = data_set.size().value();
+  const int64_t kBatchesPerEpoch = std::ceil(kDataSize / static_cast<double>(kBatchSize));
+  std::cout << "data size: " << kDataSize << std::endl;
 
   // Generate a data loader.
   auto data_loader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
-      std::move(data_set), batch_size);
+      std::move(data_set), kBatchSize);
 
   // Define network
-  nn::Sequential func_approximator(
-      nn::Linear(nn::LinearOptions(1, 100).with_bias(true)), nn::Functional(torch::leaky_relu, 0.2),
-      nn::Linear(nn::LinearOptions(100, 1).with_bias(true)), nn::Functional(torch::tanh));
+  torch::nn::Sequential func_approximator(
+      torch::nn::Linear(torch::nn::LinearOptions(1, 100).with_bias(true)),
+      torch::nn::Functional(torch::leaky_relu, 0.2),
+      torch::nn::Linear(torch::nn::LinearOptions(100, 1).with_bias(true)),
+      torch::nn::Functional(torch::tanh));
   func_approximator->to(device);
 
   // Define Optimizer
-  optim::Adam optimizer(func_approximator->parameters(), optim::AdamOptions(2e-4).beta1(0.5));
+  torch::optim::Adam optimizer(func_approximator->parameters(),
+                               torch::optim::AdamOptions(2e-4).beta1(0.5));
 
   const bool kRestoreFromCheckpoint = false;
   if (kRestoreFromCheckpoint) {
@@ -88,7 +89,7 @@ int main(int argc, char* argv[]) {
   }
 
   size_t epoch_idx = 0;
-  while (epoch_idx < epoch_size) {
+  while (epoch_idx < kEpochSize) {
     size_t batch_index = 0;
     for (torch::data::Example<>& batch : *data_loader) {
       // Train discriminator with real images.
@@ -109,8 +110,8 @@ int main(int argc, char* argv[]) {
       optimizer.step();
 
       if (batch_index % kLogInterval == 0) {
-        std::printf("\r[%2ld/%2ld][%3ld/%3ld] loss: %.4f \n", epoch_idx, epoch_size, batch_index,
-                    batches_per_epoch, d_loss_real.item<double>());
+        std::printf("\r[%2ld/%2ld][%3ld/%3ld] loss: %.4f \n", epoch_idx, kEpochSize, batch_index,
+                    kBatchesPerEpoch, d_loss_real.item<double>());
         /*
         auto test_x = torch::randn(1) * M_PI;
         auto test_y =
