@@ -1,7 +1,5 @@
 #include <torch/torch.h>
 
-// Construct own LSTM model
-
 int main(int /*argc*/, char* /*argv*/[]) {
   // Use GPU when present, CPU otherwise.
   torch::Device device(torch::kCPU);
