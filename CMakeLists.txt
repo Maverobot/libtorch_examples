@@ -21,6 +21,7 @@ add_example(hello_world)
 add_example(function_approx)
 add_example(time_serie_prediction)
 add_example(lstm_example)
+add_example(dataset_example)
 
 ## Tools
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/ClangTools.cmake OPTIONAL
