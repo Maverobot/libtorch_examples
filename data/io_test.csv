@@ -1,0 +1,3 @@
+row_id,series_id,measurement_number,orientation_X,orientation_Y,orientation_Z,orientation_W,angular_velocity_X,angular_velocity_Y,angular_velocity_Z,linear_acceleration_X,linear_acceleration_Y,linear_acceleration_Z
+0_0,0,0,-0.025773,-0.98864,-0.14801,0.00335,-0.0065237,-0.0010714,-0.02739,0.10043,4.2061,-5.5439
+0_1,0,1,-0.025683,-0.98862,-0.14816,0.003439,-0.11396,0.083987,-0.06059,-0.70889,3.9905,-8.0273
