@@ -49,11 +49,11 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
   // Define network
   torch::nn::Sequential func_approximator(
-      torch::nn::Linear(torch::nn::LinearOptions(1, 100).with_bias(true)),
+      torch::nn::Linear(torch::nn::LinearOptions(1, 100).bias(true)),
       torch::nn::Functional(torch::leaky_relu, 0.2),
-      torch::nn::Linear(torch::nn::LinearOptions(100, 10).with_bias(true)),
+      torch::nn::Linear(torch::nn::LinearOptions(100, 10).bias(true)),
       torch::nn::Functional(torch::leaky_relu, 0.2),
-      torch::nn::Linear(torch::nn::LinearOptions(10, 1).with_bias(true)),
+      torch::nn::Linear(torch::nn::LinearOptions(10, 1).bias(true)),
       torch::nn::Functional(torch::tanh));
   func_approximator->to(device);
 
