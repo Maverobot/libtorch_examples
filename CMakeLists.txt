@@ -32,6 +32,7 @@ macro(add_example name)
 endmacro()
 
 add_example(hello_world)
+add_example(simple_optimization_example)
 add_example(function_approx)
 add_example(time_serie_prediction)
 add_example(lstm_example)
