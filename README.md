@@ -34,11 +34,3 @@ mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/absolute/path/to/libtorch && cmake --build .
 ```
 
-## Running
-
-```bash
-./build/hello_world
-./build/simple_optimization_example 5
-./build/function_approx
-./build/dataset_example data/X_train_sample.csv data/y_train_sample.csv
-```
