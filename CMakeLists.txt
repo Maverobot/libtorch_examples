@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.14)
 project(libtorch_examples)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(libtorch_VERSION 1.4.0)
+set(libtorch_VERSION 2.5.1)
 find_package(Torch ${libtorch_VERSION} EXACT QUIET CONFIG)
 if(NOT Torch_FOUND)
   message(STATUS "libtorch ${libtorch_VERSION} - not found")
@@ -12,7 +12,7 @@ if(NOT Torch_FOUND)
   include(FetchContent)
   FetchContent_Declare(
     libtorch
-    URL https://download.pytorch.org/libtorch/cu101/libtorch-cxx11-abi-shared-with-deps-${libtorch_VERSION}.zip
+    URL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-${libtorch_VERSION}%2Bcpu.zip
     SOURCE_DIR libtorch)
   FetchContent_GetProperties(libtorch)
   if(NOT libtorch_POPULATED)

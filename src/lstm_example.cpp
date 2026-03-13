@@ -16,10 +16,10 @@ struct BLSTM_Model : torch::nn::Module {
   torch::nn::Linear linear{nullptr};
 
   BLSTM_Model(uint64_t layers, uint64_t hidden, uint64_t inputs) {
-    lstm = register_module("lstm",
-                           torch::nn::LSTM(torch::nn::LSTMOptions(inputs, hidden).layers(layers)));
+    lstm = register_module(
+        "lstm", torch::nn::LSTM(torch::nn::LSTMOptions(inputs, hidden).num_layers(layers)));
     reverse_lstm = register_module(
-        "rlstm", torch::nn::LSTM(torch::nn::LSTMOptions(inputs, hidden).layers(layers)));
+        "rlstm", torch::nn::LSTM(torch::nn::LSTMOptions(inputs, hidden).num_layers(layers)));
     linear = register_module("linear", torch::nn::Linear(hidden * DIRECTIONS, OUTPUTS));
   }
 
@@ -31,8 +31,8 @@ struct BLSTM_Model : torch::nn::Module {
     // Reverse Output from Reversed LSTM + Combine Outputs into one Tensor
     auto cat = torch::empty({DIRECTIONS, BATCH, x.size(0), HIDDEN});
     //[DIRECTIONS,BATCH,SEQUENCE,FEATURE]
-    cat[0] = lstm1.output.view({BATCH, x.size(0), HIDDEN});
-    cat[1] = torch::flip(lstm2.output.view({BATCH, x.size(0), HIDDEN}), 1);
+    cat[0] = std::get<0>(lstm1).view({BATCH, x.size(0), HIDDEN});
+    cat[1] = torch::flip(std::get<0>(lstm2).view({BATCH, x.size(0), HIDDEN}), 1);
     // Feed into Linear Layer
     auto out = torch::sigmoid(linear->forward(cat.view({BATCH, x.size(0), HIDDEN * DIRECTIONS})));
     //[BATCH,SEQUENCE,FEATURE]

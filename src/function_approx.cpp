@@ -50,24 +50,24 @@ int main(int /*argc*/, char* /*argv*/[]) {
   // Define network
   torch::nn::Sequential func_approximator(
       torch::nn::Linear(torch::nn::LinearOptions(1, 100).bias(true)),
-      torch::nn::Functional(torch::leaky_relu, 0.2),
+      torch::nn::LeakyReLU(torch::nn::LeakyReLUOptions().negative_slope(0.2)),
       torch::nn::Linear(torch::nn::LinearOptions(100, 10).bias(true)),
-      torch::nn::Functional(torch::leaky_relu, 0.2),
+      torch::nn::LeakyReLU(torch::nn::LeakyReLUOptions().negative_slope(0.2)),
       torch::nn::Linear(torch::nn::LinearOptions(10, 1).bias(true)),
-      torch::nn::Functional(torch::tanh));
+      torch::nn::Tanh());
   func_approximator->to(device);
 
   // Define Optimizer
   torch::optim::Adam optimizer(func_approximator->parameters(),
-                               torch::optim::AdamOptions(2e-4).beta1(0.5));
+                               torch::optim::AdamOptions(2e-4).betas(std::make_tuple(0.5, 0.999)));
 
   if (kRestoreFromCheckpoint) {
     try {
       torch::load(func_approximator, kCheckPointFile);
       std::cout << kCheckPointFile << " loaded. Continue with training on the loaded weights."
                 << std::endl;
-    } catch (const c10::Error e) {
-      std::cout << "Warning: " << e.msg_without_backtrace() << std::endl;
+    } catch (const c10::Error& e) {
+      std::cout << "Warning: " << e.what() << std::endl;
       std::cout << "Start training from beginning." << std::endl;
     }
   }

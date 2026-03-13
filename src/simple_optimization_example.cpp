@@ -23,7 +23,7 @@ void native_run(double minimal) {
     x -= kLearningRate * x.grad();
 
     // Reset the gradient of variable x
-    x.grad().reset();
+    x.mutable_grad().reset();
   }
 
   std::cout << "[native] Actual minimal x value: " << minimal
