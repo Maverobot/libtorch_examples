@@ -127,11 +127,9 @@ int main(int argc, char* argv[]) {
   std::sort(floor_types.begin(), floor_types.end());
   std::cout << "floor types: " << floor_types << std::endl;
 
-  std::cout << y_train_raw.at(0).surface << ": " << y_train_raw.at(0).toTensor(floor_types)
-            << std::endl;
-  std::cout << y_train_raw.at(1).surface << ": " << y_train_raw.at(1).toTensor(floor_types)
-            << std::endl;
-  std::cout << y_train_raw.at(4).surface << ": " << y_train_raw.at(4).toTensor(floor_types)
-            << std::endl;
+  for (size_t i = 0; i < y_train_raw.size(); ++i) {
+    std::cout << y_train_raw.at(i).surface << ": " << y_train_raw.at(i).toTensor(floor_types)
+              << std::endl;
+  }
   return 0;
 }
